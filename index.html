@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mp2Card</title>
+    <style>
+        @font-face {
+            font-family: 'Smiley';
+            src: url('Smiley.ttf') format('truetype');
+        }
+        body {
+            font-family: Smiley;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #app {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #resultDiv {
+            background-color: #D9D9D9;
+            text-decoration-color: white;
+            width: 940px;
+            height: 440px;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .innerDiv {
+            background-color: #282729;
+            position: absolute;
+            width: 300px;
+            height: 400px;
+            top: 20px;
+        }
+
+        #leftDiv {
+            left: 10px;
+            border-radius: 5px;
+        }
+
+        #midDiv {
+            left: 320px;
+            border-radius: 5px;
+        }
+
+        #rightDiv {
+            right: 10px;
+            border-radius: 5px;
+        }
+        #leftDivPic {
+            left: 10px;
+            border-radius: 5px;
+        }
+
+        #midDivPic {
+            left: 320px;
+            border-radius: 5px;
+        }
+
+        #rightDivPic {
+            right: 10px;
+            border-radius: 5px;
+        }
+        #howTo {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>长文➡️卡片转化器</h1>
+        <p>（粗糙版）</p>
+        <input type="text" id="chatsumKey" placeholder="输入你的知了Key">
+        <button onclick="submitKey()">提交</button>
+        <input type="text" id="articleLink" placeholder="输入文章地址">
+        <button id="fetchButton" onclick="fetchArticleInfo()" disabled>获取文章信息</button>
+        <button id="generateButton" onclick="generatePicture()" disabled>生成canvas图片</button>
+        <div id="loadingIndicator" style="display: none;">加载中...</div>
+        <h3>📄页面预览</h3>
+        <div id="resultDiv">
+            <div class="innerDiv" id="leftDiv">
+                <!-- Add content here -->
+            </div>
+            <div class="innerDiv" id="midDiv">
+                <!-- Add content here -->
+            </div>
+            <div class="innerDiv" id="rightDiv">
+                <!-- Add content here -->
+            </div>
+        </div>
+        <h3>⬇️图片下载</h3>
+        <div id="resultDiv">
+            <div class="innerDiv" id="leftDivPic">
+                <!-- Add content here -->
+            </div>
+            <div class="innerDiv" id="midDivPic">
+                <!-- Add content here -->
+            </div>
+            <div class="innerDiv" id="rightDivPic">
+                <!-- Add content here -->
+            </div>
+        </div>
+        <div id="howTo">
+        <h3>使用须知:</h3>
+        <p>1️⃣点击 <a href="https://open.chatsum.ai/#/guide/apply" target="_blank">这里</a> 了解知了阅读Key的获取方式</p>
+        <p>2️⃣前端小学生一枚，实测当返回的文字过多时会溢出页面，请自行优化；</p>
+        <p>3️⃣目前仅能生成页面，你可以搞一个<a href="https://github.com/niklasvh/html2canvas" target="_blank">html2canvas</a>生成图片</p>
+        <p>4️⃣如果对AI、流量感兴趣，欢迎扫码加入流量情报局，入群关键词就是群名</p>
+        <p>5️⃣获取源码同样添加小助理，发送关键词[长文转卡片]</p>
+        <img width="940px" src="group.png">
+    </div>
+    </div>
+    
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <script>
+        function submitKey() {
+            const key = document.getElementById('chatsumKey').value;
+
+            // 检查用户是否填写了Key
+            if (key.trim() === "") {
+                alert("请输入知了Key！");
+                return;
+            }
+
+            // 启用获取文章信息的按钮
+            document.getElementById('fetchButton').disabled = false;
+        }
+        
+        function generatePicture() {
+            html2canvas(document.querySelector("#leftDiv")).then(canvas => {
+                document.body.querySelector('#leftDivPic').appendChild(canvas)
+                
+            });
+            html2canvas(document.querySelector("#midDiv")).then(canvas => {
+                document.body.querySelector('#midDivPic').appendChild(canvas)
+                
+            });
+            html2canvas(document.querySelector("#rightDiv")).then(canvas => {
+                document.body.querySelector('#rightDivPic').appendChild(canvas)
+                
+            });
+            
+        }
+
+        function fetchArticleInfo() {
+            const key = document.getElementById('chatsumKey').value;
+            const link = document.getElementById('articleLink').value;
+            
+            document.getElementById('loadingIndicator').style.display = 'block';
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${key}` 
+            };
+            fetch('https://read.thinkwx.com/api/v1/article/info', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ link })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayArticleInfo(data.data);
+                document.getElementById('generateButton').disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                // 隐藏加载中提示
+                document.getElementById('loadingIndicator').style.display = 'none';
+            });
+        }
+
+        function displayArticleInfo(article) {
+            const leftDiv = document.getElementById('leftDiv');
+            const midDiv = document.getElementById('midDiv');
+            const rightDiv = document.getElementById('rightDiv');
+
+
+    // Left Div Content
+    leftDiv.innerHTML = `
+        <div style="font-size: 50px; color: #29FE82; margin-top: 40px;">30s</div>
+        <div style="font-size: 30px; color: black; background-color: #29FE82;margin-top: 10px;">✔学会一个AI玩法</div>
+        <div style="margin-top: 20px;color:white;">原文：${article.words_count}字 | 省时：${article.read_time}</div>
+        <div style="width: 300px; height: 150px; margin-top: 10px; position: relative;background-image: url('backgroundimage.png'); background-size: cover;">
+            <div style="position: absolute; bottom: 10px;padding-left:10px;padding-right:10px; width: 280px; text-align: center; color: white;background-color: rgba(0, 0, 0, 0.5);">${article.title}</div>
+        </div>
+        <div style="margin-top: 10px;color: white;">by ${article.author}</div>
+    `;
+
+    // Right Div Content
+    midDiv.innerHTML = `
+        <div style="font-size: 25px; text-align: left;color: #29FE82; padding-top: 20px;padding-bottom: 0px;padding-left: 10px; word-wrap: break-word;">🚀10s速览全文</div>
+        <hr style="border: 0; height: 1px; background-color: grey; width: 280px; margin-left: 10px;">
+        <div style="font-size: 18px; color: #29FE82;margin-top: 20px;margin-left: 5px;text-align: left;">🤔一句话概括</div>
+        <div style="font-size: 15px; padding: 5px;color: white; text-align: left; width: 280px; margin-top: 5px; word-wrap: break-word;">${article.one_word}</div>
+        <div style="font-size: 18px; margin-top: 10px;color: #29FE82;margin-left: 5px;text-align: left;">🎯关键信息</div>
+        <div style="font-size: 12px;color: white; padding: 5px; text-align: left; width: 280px; margin-top: 5px; word-wrap: break-word;">
+            ${article.key_points.map(point => `<p>👉${point}</p>`).join('')}
+        </div>
+    `;
+    rightDiv.innerHTML = `
+        <div style="font-size: 20px; text-align: left;color: #29FE82; padding-top: 20px;padding-bottom: 0px;padding-left: 10px; word-wrap: break-word;">🙋必须关注的3个问题</div>
+        <hr style="border: 0; height: 1px; background-color: grey; width: 280px; margin-left: 10px;">
+        <div style="font-size: 15px; margin-top: 20px;margin-left: 5px;color: #29FE82;text-align: left;">💭 ${article.questions[0].question}</div>
+        <div style="font-size: 12px;color: white; padding: 5px; text-align: left; width: 280px; margin-top: 5px; word-wrap: break-word;">🥊 ${article.questions[0].answer}</div>
+        <div style="font-size: 15px; margin-top: 20px;color: #29FE82;margin-left: 5px;text-align: left;">💭 ${article.questions[1].question}</div>
+        <div style="font-size: 12px;color: white; padding: 5px; text-align: left; width: 280px; margin-top: 5px; word-wrap: break-word;">🥊 ${article.questions[1].answer}</div>
+        <div style="font-size: 15px;color: white; margin-top: 20px;color: #29FE82;margin-left: 5px;text-align: left;">💭 ${article.questions[2].question}</div>
+        <div style="font-size: 12px;color: white; padding: 5px; text-align: left; width: 280px; margin-top: 5px; word-wrap: break-word;">🥊 ${article.questions[2].answer}</div>
+    `;
+}
+
+    </script>
+</body>
+</html>
