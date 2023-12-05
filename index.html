@@ -159,8 +159,8 @@
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${key}` 
             };
-            fetch('https://read.thinkwx.com/api/v1/article/info', {
-                method: 'POST',
+            fetch('https://readknown.cn/api/v1/article/info', {
+                method: 'POST',·
                 headers,
                 body: JSON.stringify({ link })
             })
